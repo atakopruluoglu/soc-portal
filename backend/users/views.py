@@ -1,3 +1,4 @@
-from django.shortcuts import render
-
-# Create your views here.
+@classmethod
+def get_token(cls, user):
+    token = super().get_token(user)
+    return token
