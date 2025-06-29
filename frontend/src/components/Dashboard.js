@@ -1,12 +1,50 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './Dashboard.css';
 
 function Dashboard() {
   const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
+  const [assignedTo, setAssignedTo] = useState('');
+  const [users, setUsers] = useState([]);
+
+  const handleDeleteTicket = async (ticketId) => {
+    const confirmed = window.confirm("Bu ticketı silmek istediğinize emin misiniz?");
+    if (!confirmed) return;
+  
+    try {
+      const accessToken = localStorage.getItem('access_token');
+      await axios.delete(`http://127.0.0.1:8000/api/tickets/${ticketId}/`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      alert("Ticket silindi.");
+      fetchTickets();
+    } catch (err) {
+      alert("Silme işlemi başarısız.");
+    }
+  };
+  
+  const handleStatusChange = async (ticketId, newStatus) => {
+    try {
+      const accessToken = localStorage.getItem('access_token');
+      await axios.patch(`http://127.0.0.1:8000/api/tickets/${ticketId}/`, {
+        status: newStatus,
+      }, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      fetchTickets();
+    } catch (err) {
+      alert("Statü güncellenemedi.");
+    }
+  };
+  
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
@@ -28,8 +66,23 @@ function Dashboard() {
     }
   };
 
+  const fetchUsers = async () => {
+    try {
+      const accessToken = localStorage.getItem('access_token');
+      const response = await axios.get('http://127.0.0.1:8000/api/users/', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      setUsers(response.data);
+    } catch (err) {
+      console.error('Kullanıcılar çekilemedi:', err);
+    }
+  };
+
   useEffect(() => {
     fetchTickets();
+    fetchUsers();
   }, []);
 
   const handleCreateTicket = async (e) => {
@@ -39,6 +92,7 @@ function Dashboard() {
       await axios.post('http://127.0.0.1:8000/api/tickets/', {
         title: newTitle,
         description: newDescription,
+        assigned_to: assignedTo || null,
       }, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -47,6 +101,7 @@ function Dashboard() {
       alert('Ticket başarıyla oluşturuldu!');
       setNewTitle('');
       setNewDescription('');
+      setAssignedTo('');
       fetchTickets();
     } catch (err) {
       console.error('Ticket oluşturulurken hata:', err.response || err.message);
@@ -55,35 +110,22 @@ function Dashboard() {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+    <div className="dashboard-container">
       <h1>Hoşgeldiniz!</h1>
 
-      <button
-        onClick={handleLogout}
-        style={{
-          marginTop: '20px',
-          marginBottom: '40px',
-          padding: '10px 20px',
-          backgroundColor: '#dc3545',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          fontSize: '16px'
-        }}
-      >
+      <button onClick={handleLogout} className="logout-button">
         Çıkış Yap
       </button>
 
       <h2>Yeni Ticket Oluştur</h2>
-      <form onSubmit={handleCreateTicket} style={{ marginBottom: '40px' }}>
+      <form onSubmit={handleCreateTicket} className="ticket-form">
         <input
           type="text"
           placeholder="Başlık"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           required
-          style={{ padding: '8px', width: '300px', marginBottom: '10px' }}
+          className="ticket-input"
         />
         <br />
         <textarea
@@ -91,21 +133,23 @@ function Dashboard() {
           value={newDescription}
           onChange={(e) => setNewDescription(e.target.value)}
           required
-          style={{ padding: '8px', width: '300px', height: '100px', marginBottom: '10px' }}
+          className="ticket-textarea"
         />
         <br />
-        <button
-          type="submit"
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#28a745',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '16px'
-          }}
+        <select
+          value={assignedTo}
+          onChange={(e) => setAssignedTo(e.target.value)}
+          className="ticket-select"
         >
+          <option value="">Atanacak kullanıcı seç</option>
+          {users.map(user => (
+            <option key={user.id} value={user.id}>
+              {user.username} ({user.email})
+            </option>
+          ))}
+        </select>
+        <br />
+        <button type="submit" className="submit-button">
           Oluştur
         </button>
       </form>
@@ -114,26 +158,44 @@ function Dashboard() {
       {tickets.length === 0 ? (
         <p>Hiç ticket yok.</p>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="ticket-table">
           <thead>
             <tr>
-              <th style={{ border: '1px solid #ccc', padding: '8px' }}>ID</th>
-              <th style={{ border: '1px solid #ccc', padding: '8px' }}>Başlık</th>
-              <th style={{ border: '1px solid #ccc', padding: '8px' }}>Açıklama</th>
-              <th style={{ border: '1px solid #ccc', padding: '8px' }}>Oluşturan</th>
-              <th style={{ border: '1px solid #ccc', padding: '8px' }}>Atanan</th>
+              <th>ID</th>
+              <th>Başlık</th>
+              <th>Açıklama</th>
+              <th>Oluşturan</th>
+              <th>Atanan</th>
+              <th>İşlemler</th>
             </tr>
           </thead>
           <tbody>
             {tickets.map(ticket => (
               <tr key={ticket.id}>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>{ticket.id}</td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>{ticket.title}</td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>{ticket.description}</td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>{ticket.created_by_email}</td>
-                <td style={{ border: '1px solid #ccc', padding: '8px' }}>
-                  {ticket.assigned_to_email || 'Henüz atanmadı'}
-                </td>
+                <td>{ticket.id}</td>
+                <td>{ticket.title}</td>
+                <td>{ticket.description}</td>
+                <td>{ticket.created_by_email}</td>
+                <td>{ticket.assigned_to_email || 'Henüz atanmadı'}</td>
+                <td>
+        <select
+          value={ticket.status}
+          onChange={(e) => handleStatusChange(ticket.id, e.target.value)}
+          className="status-select"
+        >
+          <option value="open">Açık</option>
+          <option value="in_progress">Devam Ediyor</option>
+          <option value="resolved">Çözüldü</option>
+          <option value="closed">Kapandı</option>
+        </select>
+        <button
+          onClick={() => handleDeleteTicket(ticket.id)}
+          className="delete-button"
+          style={{ marginLeft: '10px' }}
+        >
+          Sil
+        </button>
+      </td>
               </tr>
             ))}
           </tbody>

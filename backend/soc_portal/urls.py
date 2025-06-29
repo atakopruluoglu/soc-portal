@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from tickets.views import TicketViewSet
+from users.views import UserViewSet
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -10,6 +11,7 @@ from rest_framework_simplejwt.views import (
 
 router = routers.DefaultRouter()
 router.register(r'tickets', TicketViewSet)
+router.register(r'users', UserViewSet)  
 
 urlpatterns = [
     path('admin/', admin.site.urls),

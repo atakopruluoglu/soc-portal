@@ -3,9 +3,10 @@ from users.models import CustomUser
 
 class Ticket(models.Model):
     STATUS_CHOICES = [
-        ('Open', 'Open'),
-        ('In Progress', 'In Progress'),
-        ('Closed', 'Closed'),
+        ('open', 'Açık'),
+        ('in_progress', 'Devam Ediyor'),
+        ('resolved', 'Çözüldü'),
+        ('closed', 'Kapandı'),
     ]
 
     title = models.CharField(max_length=200)

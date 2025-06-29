@@ -1,0 +1,68 @@
+.dashboard-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .logout-button {
+    margin-top: 20px;
+    margin-bottom: 40px;
+    padding: 10px 20px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .ticket-form {
+    margin-bottom: 40px;
+  }
+  
+  .ticket-input,
+  .ticket-textarea,
+  .ticket-select {
+    padding: 8px;
+    width: 300px;
+    margin-bottom: 10px;
+  }
+  
+  .ticket-textarea {
+    height: 100px;
+  }
+  
+  .submit-button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .ticket-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .ticket-table th,
+  .ticket-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+  }
+  
+  .status-select {
+    padding: 5px;
+    border-radius: 4px;
+  }
+  
+  .delete-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
