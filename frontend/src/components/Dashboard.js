@@ -120,6 +120,8 @@ function Dashboard() {
               <th style={{ border: '1px solid #ccc', padding: '8px' }}>ID</th>
               <th style={{ border: '1px solid #ccc', padding: '8px' }}>Başlık</th>
               <th style={{ border: '1px solid #ccc', padding: '8px' }}>Açıklama</th>
+              <th style={{ border: '1px solid #ccc', padding: '8px' }}>Oluşturan</th>
+              <th style={{ border: '1px solid #ccc', padding: '8px' }}>Atanan</th>
             </tr>
           </thead>
           <tbody>
@@ -128,6 +130,10 @@ function Dashboard() {
                 <td style={{ border: '1px solid #ccc', padding: '8px' }}>{ticket.id}</td>
                 <td style={{ border: '1px solid #ccc', padding: '8px' }}>{ticket.title}</td>
                 <td style={{ border: '1px solid #ccc', padding: '8px' }}>{ticket.description}</td>
+                <td style={{ border: '1px solid #ccc', padding: '8px' }}>{ticket.created_by_email}</td>
+                <td style={{ border: '1px solid #ccc', padding: '8px' }}>
+                  {ticket.assigned_to_email || 'Henüz atanmadı'}
+                </td>
               </tr>
             ))}
           </tbody>
